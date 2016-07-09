@@ -37,9 +37,10 @@ function pdefault(e){
 }
 
 var touchStarted= function(){
- // pressed(touchX,touchY);
-     p.x = touchX;
+    p.x = touchX;
     p.y = touchY;
+
+  pressed(touchX,touchY);
 }
 
 var touchMoved= function(){
