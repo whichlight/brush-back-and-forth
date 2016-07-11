@@ -8,6 +8,8 @@ var now;
 var col;
 var newgesture = true;
 var endgesture = true;
+var touched = false;
+var autodrawinit = true;
 
 
 
@@ -30,7 +32,7 @@ var setup = function(){
 
   past = createVector(0, 0);
   background(color(0,0,0));
- // initCover();
+  initCover();
 }
 
 function windowResized() {
@@ -43,6 +45,7 @@ function pdefault(e){
 
 var touchStarted= function(){
     newgesture = true;
+    touched = true;
     return false;
 }
 
@@ -58,12 +61,13 @@ var touchEnded= function(){
 }
 
 var initCover = function(){
-  var num = 1000;
-  for(var i =0; i<num;i++){
-    col=color(0,0,floor(random(0,2)));
-    ellipse(random(w),random(h),50,50);
-    fill(col);
-    stroke(col);
+  var recw = 20;
+  var numr = h/recw;
+
+  background(0,0,0);
+  for(var i =0; i<numr;i++){
+     fill(0,0,1);
+     rect(0,recw*i,w,recw/2)
   }
 }
 
@@ -77,7 +81,8 @@ var pressed= function(x,y){
     past.n2= createVector(0,0);
     past.r = 0;
     newgesture = false;
-    background(0,0,0);
+
+    initCover();
   }
   drawCircle(now);
 }
@@ -91,8 +96,8 @@ var drawCircle = function(now){
       col = color(0,0,0);
     }
 
-      col = color(0,0,1);
     /*
+      col = color(0,0,1);
     var diffv = p5.Vector.sub(now,past);
     var ang = atan(diffv.y, diffv.x);
     ang = (1+(ang/90))/2;
@@ -100,12 +105,24 @@ var drawCircle = function(now){
     col = color(0,0,ang);
     */
 
+    var diffv = p5.Vector.sub(now,past);
+
     var dist = now.dist(past);
 
 
+    var inputproc = min(pow(abs(diffv.y)-abs(diffv.x/2),1/2),14);
 
-    var r = map(min(pow(dist,1/2),10),0,10,2,80);
+    //if(abs(diffv.x*4)<abs(diffv.y)){
+
+    if((diffv.x)>2){
+        console.log('test');
+        //inputproc = min(inputproc,5);
+        }
+    var r = inputproc*(10);
     //ellipse(now.x,now.y,r,r);
+
+
+
     if(dist==0){
       r = past.r;
     }
@@ -118,20 +135,11 @@ var drawCircle = function(now){
     strokeWeight(2);
     */
 
-    stroke(col);
-    fill(col);
-    ellipse(now.x,now.y,r,r);
-
     //perpendicular
-    var diffv = p5.Vector.sub(now,past);
     var n1 = createVector(-1*diffv.y, diffv.x);
     var n2 = createVector(diffv.y, -1*diffv.x);
 
     if(n1.mag()==0){
-      console.log('zero');
-      console.log(past);
-      console.log(r);
-      console.log(now);
       n1 = past.n1;
       n2 = past.n2;
     }
@@ -161,10 +169,37 @@ var drawCircle = function(now){
     vertex(now.p1.x,now.p1.y);
     endShape(CLOSE);
 
+    //circles
+    var numCirc = 1;
+    if(r>4){
+        numCirc = diffv.mag()/(r/4);
+    }
+
+    for(var i=0; i<numCirc; i++){
+
+      stroke(col);
+      fill(col);
+      var cx =lerp(past.x, now.x, i/numCirc);
+      var cy =lerp(past.y, now.y, i/numCirc);
+      var cr =lerp(past.r, r, i/numCirc);
+      ellipse(cx,cy,cr,cr);
+    }
 
 
     //shift in time
     past = now;
+}
+
+var autox;
+var autoy;
+var autoang;
+var autospeed;
+var angspeed;
+
+var initAuto = function(){
+      autoang = random(360);
+      autospeed = random(5,30);
+      angspeed = random(-10,10);
 }
 
 var draw = function(){
@@ -173,6 +208,30 @@ var draw = function(){
       newgesture = true;
       endgesture = false;
     }
+  }
+  if(!touched){
+    if(autodrawinit){
+      newgesture = true;
+      autodrawinit= false;
+      autox = w/2;
+      autoy = h/2;
+      initAuto();
+    }
+    autox+=autospeed*cos(autoang);
+    autoy+=autospeed*sin(autoang);
+    autoang+=angspeed;
+
+    if(frameCount%10==0){
+      initAuto();
+    }
+
+    if(autoy>h || autoy<0 || autox > w || autox <0){
+      autoang+=180;
+      autoang%=360;
+    }
+
+
+    pressed(autox, autoy);
   }
 }
 
