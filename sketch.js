@@ -114,10 +114,7 @@ var drawCircle = function(now){
 
     //if(abs(diffv.x*4)<abs(diffv.y)){
 
-    if((diffv.x)>2){
-        console.log('test');
-        //inputproc = min(inputproc,5);
-        }
+
     var r = inputproc*(10);
     //ellipse(now.x,now.y,r,r);
 
