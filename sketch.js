@@ -73,6 +73,9 @@ var pressed= function(x,y){
     past = now;
     past.p1 = createVector(0,0);
     past.p2 = createVector(0,0);
+    past.n1= createVector(0,0);
+    past.n2= createVector(0,0);
+    past.r = 0;
     newgesture = false;
     background(0,0,0);
   }
@@ -98,37 +101,57 @@ var drawCircle = function(now){
     */
 
     var dist = now.dist(past);
-    var r = map(sqrt(min(dist,100)),0,5,5,50);
-    //ellipse(now.x,now.y,r,r);
 
+
+
+    var r = map(min(pow(dist,1/2),10),0,10,2,80);
+    //ellipse(now.x,now.y,r,r);
+    if(dist==0){
+      r = past.r;
+    }
+    now.r = r;
+
+    /*
     line(now.x,now.y,past.x, past.y)
     noFill();
     stroke(col);
     strokeWeight(2);
+    */
 
-    ellipse(now.x,now.y,r,r);
     stroke(col);
     fill(col);
+    ellipse(now.x,now.y,r,r);
 
     //perpendicular
     var diffv = p5.Vector.sub(now,past);
     var n1 = createVector(-1*diffv.y, diffv.x);
     var n2 = createVector(diffv.y, -1*diffv.x);
 
-    var p1 = p5.Vector.add(now,n1.normalize().mult(r));
-    var p2 = p5.Vector.add(now,n2.normalize().mult(r));
+    if(n1.mag()==0){
+      console.log('zero');
+      console.log(past);
+      console.log(r);
+      console.log(now);
+      n1 = past.n1;
+      n2 = past.n2;
+    }
+
+    var p1 = p5.Vector.add(now,n1.normalize().mult(r/2));
+    var p2 = p5.Vector.add(now,n2.normalize().mult(r/2));
     now.p1 = p1;
     now.p2 = p2;
+    now.n1 = n1;
+    now.n2 = n2;
 
     /*
     line(p1.x,p1.y,p2.x, p2.y)
     noFill();
     stroke(col);
+    */
 
     //shape
-    noFill();
     stroke(col);
-
+    fill(col);
 
     beginShape();
     vertex(past.p1.x,past.p1.y);
@@ -136,10 +159,9 @@ var drawCircle = function(now){
 
     vertex(now.p2.x,now.p2.y);
     vertex(now.p1.x,now.p1.y);
-    endShape();
+    endShape(CLOSE);
 
 
-    */
 
     //shift in time
     past = now;
