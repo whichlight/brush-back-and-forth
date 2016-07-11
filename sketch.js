@@ -66,6 +66,7 @@ var initCover = function(){
 
   background(0,0,0);
   for(var i =0; i<numr;i++){
+     stroke(0,0,1);
      fill(0,0,1);
      rect(0,recw*i,w,recw/2)
   }
