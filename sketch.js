@@ -9,6 +9,7 @@ var col;
 var newgesture = true;
 var endgesture = true;
 var touched = false;
+var totalLength = 0;
 var autodrawinit = true;
 
 
@@ -57,6 +58,11 @@ var touchMoved= function(){
 var touchEnded= function(){
   pressed(touchX,touchY);
   endgesture = true;
+
+  if(totalLength==0){
+
+    initCover();
+  }
   return false;
 }
 
@@ -83,7 +89,6 @@ var pressed= function(x,y){
     past.r = 0;
     newgesture = false;
 
-    initCover();
   }
   drawCircle(now);
 }
@@ -109,6 +114,7 @@ var drawCircle = function(now){
     var diffv = p5.Vector.sub(now,past);
 
     var dist = now.dist(past);
+    totalLength+=dist;
 
 
     var inputproc = min(pow(abs(diffv.y)-abs(diffv.x/2),1/2),14);
@@ -193,10 +199,11 @@ var autoy;
 var autoang;
 var autospeed;
 var angspeed;
+var angtime;
 
 var initAuto = function(){
       autoang = random(360);
-      autospeed = random(5,30);
+      autospeed = random(1,30);
       angspeed = random(-10,10);
 }
 
@@ -205,6 +212,7 @@ var draw = function(){
     if(endgesture){
       newgesture = true;
       endgesture = false;
+      totalLength = 0;
     }
   }
   if(!touched){
